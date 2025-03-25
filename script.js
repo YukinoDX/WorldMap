@@ -51,7 +51,7 @@ async function main() {
   }
 
   navigator.geolocation.watchPosition(success);
-  setInterval(drawMap, 100);
+  setInterval(drawMap, 1000);
 }
 
 main();
