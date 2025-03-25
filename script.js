@@ -44,6 +44,7 @@ async function main() {
 
         if (!localStorage.getItem(`${convert(x)} ${convert(y)}`)) {
           let rect = L.rectangle([[x, y], [x + dx, y + dy]], { weight: 0.0, fillColor: "gray", fillOpacity: 0.99 }).addTo(map);
+          rect.getElement().style.pointerEvents = "none";
           rects.push(rect);
         }
       }
