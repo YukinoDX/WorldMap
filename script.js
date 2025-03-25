@@ -1,7 +1,7 @@
 const D = 1000;
 
 function convert(a) {
-  return Math.floor(a * D);
+  return Math.round(a * D);
 }
 
 async function main() {
@@ -39,8 +39,8 @@ async function main() {
     rects.forEach((rect) => map.removeLayer(rect));
 
     const bound = map.getBounds();
-    for (let x = convert(bound.getSouthWest().lat) / D; x < bound.getNorthEast().lat; x += dx) {
-      for (let y = convert(bound.getSouthWest().lng) / D; y < bound.getNorthEast().lng; y += dy) {
+    for (let x = Math.floor(bound.getSouthWest().lat * D) / D; x < bound.getNorthEast().lat; x += dx) {
+      for (let y = Math.floor(bound.getSouthWest().lng * D) / D; y < bound.getNorthEast().lng; y += dy) {
 
         if (!localStorage.getItem(`${convert(x)} ${convert(y)}`)) {
           let rect = L.rectangle([[x, y], [x + dx, y + dy]], { weight: 0.0, fillColor: "gray", fillOpacity: 0.99 }).addTo(map);
