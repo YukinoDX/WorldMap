@@ -1,7 +1,7 @@
 const D = 1000;
 
 function convert(a) {
-  return Math.round(a * D);
+  return Math.floor(a * D);
 }
 
 async function main() {
@@ -18,32 +18,14 @@ async function main() {
   let rects = [];
   let marker = null;
 
-  function success(position) {
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
-
-    if (marker) {
-      map.removeLayer(marker);
-    }
-    marker = L.marker([lat, lng]).addTo(map);
-
-    const latConv = convert(lat);
-    const lngConv = convert(lng);
-    localStorage.setItem(`${latConv} ${lngConv}`, true);
-  }
-
-  const dx = 0.001;
-  const dy = 0.001;
-
   function drawMap() {
     rects.forEach((rect) => map.removeLayer(rect));
 
     const bound = map.getBounds();
-    for (let x = Math.floor(bound.getSouthWest().lat * D) / D; x < bound.getNorthEast().lat; x += dx) {
-      for (let y = Math.floor(bound.getSouthWest().lng * D) / D; y < bound.getNorthEast().lng; y += dy) {
-
-        if (!localStorage.getItem(`${convert(x)} ${convert(y)}`)) {
-          let rect = L.rectangle([[x, y], [x + dx, y + dy]], { weight: 0.0, fillColor: "gray", fillOpacity: 0.99 }).addTo(map);
+    for (let x = convert(bound.getSouthWest().lat); x <= convert(bound.getNorthEast().lat); x++) {
+      for (let y = convert(bound.getSouthWest().lng); y <= convert(bound.getNorthEast().lng); y++) {
+        if (!localStorage.getItem(`${x} ${y}`)) {
+          let rect = L.rectangle([[x / D, y / D], [(x + 1) / D, (y + 1) / D]], { weight: 0.0, fillColor: "gray", fillOpacity: 0.99 }).addTo(map);
           rect.getElement().style.pointerEvents = "none";
           rects.push(rect);
         }
@@ -51,8 +33,25 @@ async function main() {
     }
   }
 
+  function success(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    if (marker) {
+      marker.setLatLng([lat, lng]);
+    } else {
+      marker = L.marker([lat, lng]).addTo(map);
+    }
+
+    const latConv = convert(lat);
+    const lngConv = convert(lng);
+    localStorage.setItem(`${latConv} ${lngConv}`, true);
+
+    drawMap()
+  }
+
   navigator.geolocation.watchPosition(success);
-  setInterval(drawMap, 1000);
+  map.on('move', drawMap);
 }
 
 main();
